@@ -1,7 +1,7 @@
 const readline = require('readline')
 const fs = require('fs')
 
-const input = process.argv.slice(2)[0]
+let input = process.argv.slice(2)[0]
 
 const readInterface = readline.createInterface({
     input: fs.createReadStream('words.txt')
@@ -14,24 +14,29 @@ readInterface.on('line', line => {
 })
 
 readInterface.on('close', () => {
-    anagrams(countLetters(input), reduceWords(words, countLetters(input)), [])
+    input = input.toUpperCase()
+    input = countLetters(input)
+    anagrams(input, reduceWords(words, input), [])
 })
 
 /**
  * Reduce the words to input's anagrams
  * @param {[string]} words Dictionary os words
- * @param {string} input User input
+ * @param {string} mappedInput User input
  */
-function reduceWords(words, input) {
+function reduceWords(words, mappedInput) {
+
     let candidates = new Map()
     words.forEach(line => {
         let candidateMap = countLetters(line)
         let isContained = true
         candidateMap.forEach((value, key) => {
-            if (!input.has(key) || input.get(key) < value) isContained = false
+            if (!mappedInput.has(key) || mappedInput.get(key) < value) isContained = false
         })
         if (isContained === true) candidates.set(line, candidateMap)
     })
+    console.log(candidates)
+
     return candidates
 }
 
@@ -79,13 +84,11 @@ function removeLetters(biggerMap, smallerMap) {
 const anagramlist = []
 
 /**
- * Re
  * @param {*} mappedInput 
  * @param {*} reducedWords 
  * @param {*} chosenWords 
  */
 function anagrams(mappedInput, reducedWords, chosenWords) {
-    console.log(mappedInput, reducedWords, chosenWords)
     if (mappedInput.size === 0) {
         anagramlist.push(chosenWords)
     } else {
